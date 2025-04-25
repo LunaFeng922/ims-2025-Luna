@@ -95,7 +95,20 @@ function setup() {
   }
 
   let rootNote = 220;
-  pentatonic = getPentatonicFromRoot(rootNote, scalePresets[scaleIndex]);
+
+  // URL - octave shift
+  let octaveShift = 0;
+  if (urlParams.octaveShift) {
+    octaveShift = parseInt(urlParams.octaveShift);
+    if (isNaN(octaveShift)) octaveShift = 0;
+  }
+
+  // apply octave shift multiplier
+  let shiftMultiplier = Math.pow(2, octaveShift);
+
+  pentatonic = getPentatonicFromRoot(rootNote, scalePresets[scaleIndex]).map(
+    (freq) => freq * shiftMultiplier
+  );
 
   console.log("Scale:", scaleIndex, pentatonic);
 }
@@ -142,66 +155,55 @@ function gotHands(results) {
   let vw = video.width;
   let vh = video.height;
 
+  //***seems that you still need to include thisline for the sketch to go through all the hands
   results.forEach((hand) => {
-    let landmarks = hand;
-
-    if (landmarks.thumb_tip && landmarks.index_finger_tip) {
-      let x1 = map(landmarks.thumb_tip.x, 0, vw, videoX + videoW, videoX);
-      let y1 = map(landmarks.thumb_tip.y, 0, vh, videoY, videoY + videoH);
-      let x2 = map(
-        landmarks.index_finger_tip.x,
-        0,
-        vw,
-        videoX + videoW,
-        videoX
-      );
-      let y2 = map(
-        landmarks.index_finger_tip.y,
-        0,
-        vh,
-        videoY,
-        videoY + videoH
-      );
-
-      let centerX = (x1 + x2) / 2;
-      let centerY = (y1 + y2) / 2;
-      let distBetween = dist(x1, y1, x2, y2);
-      let volume = map(distBetween, 20, 200, 0, 0.5);
-      volume = constrain(volume, 0, 0.5);
-
-      let noteIndexY = Math.floor(
-        map(centerY, height, 0, 0, pentatonic.length)
-      );
-      noteIndexY = constrain(noteIndexY, 0, pentatonic.length - 1);
-
-      let panXR = map(centerX, 0, width / 2, -1, 1);
-      panXR = constrain(panXR, -1, 1);
-      let panXL = map(centerX, width / 2, width, -1, 1);
-      panXL = constrain(panXL, -1, 1);
-
-      if (landmarks.handedness === "Left") {
-        leftX = centerX;
-        leftY = centerY;
-        leftD = distBetween;
-
-        leftOsc.freq(pentatonic[noteIndexY]);
-        leftOsc.amp(volume, 0.05);
-        leftOsc.pan(panXL);
-        handDetectedLeft = true;
-      }
-
-      if (landmarks.handedness === "Right") {
-        rightX = centerX;
-        rightY = centerY;
-        rightD = distBetween;
-
-        rightOsc.freq(pentatonic[noteIndexY]);
-        rightOsc.amp(volume * 0.5, 0.05);
-        rightOsc.pan(panXR);
-        handDetectedRight = true;
-      }
-    }
+    handDetection(hand, vw, vh);
   });
+}
+
+function handDetection(landmarks, vw, vh) {
+  if (landmarks.thumb_tip && landmarks.index_finger_tip) {
+    let x1 = map(landmarks.thumb_tip.x, 0, vw, videoX + videoW, videoX);
+    let y1 = map(landmarks.thumb_tip.y, 0, vh, videoY, videoY + videoH);
+    let x2 = map(landmarks.index_finger_tip.x, 0, vw, videoX + videoW, videoX);
+    let y2 = map(landmarks.index_finger_tip.y, 0, vh, videoY, videoY + videoH);
+
+    let centerX = (x1 + x2) / 2;
+    let centerY = (y1 + y2) / 2;
+    let distBetween = dist(x1, y1, x2, y2);
+    let volume = map(distBetween, 20, 200, 0, 0.5);
+    volume = constrain(volume, 0, 0.5);
+
+    let noteIndexY = Math.floor(map(centerY, height, 0, 0, pentatonic.length));
+    noteIndexY = constrain(noteIndexY, 0, pentatonic.length - 1);
+
+    let panXR = map(centerX, 0, width / 2, -1, 1);
+    panXR = constrain(panXR, -1, 1);
+    let panXL = map(centerX, width / 2, width, -1, 1);
+    panXL = constrain(panXL, -1, 1);
+
+    if (landmarks.handedness === "Left") {
+      leftX = centerX;
+      leftY = centerY;
+      leftD = distBetween;
+
+      leftOsc.freq(pentatonic[noteIndexY]);
+      leftOsc.amp(volume, 0.05);
+      leftOsc.pan(panXL);
+      handDetectedLeft = true;
+    }
+
+    if (landmarks.handedness === "Right") {
+      rightX = centerX;
+      rightY = centerY;
+      rightD = distBetween;
+
+      rightOsc.freq(pentatonic[noteIndexY]);
+      rightOsc.amp(volume * 0.5, 0.05);
+      rightOsc.pan(panXR);
+      handDetectedRight = true;
+    }
+  }
 }
 
 function toggleFullscreen() {
