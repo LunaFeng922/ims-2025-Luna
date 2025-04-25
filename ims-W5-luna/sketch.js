@@ -11,7 +11,7 @@
 let temperature = 0;
 let weather = "";
 let json;
-let city = "Changchun";
+let city = "New York";
 
 let handPose;
 let video;
