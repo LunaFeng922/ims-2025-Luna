@@ -1,6 +1,10 @@
 //Orginal code from Professor Carrie Wang:https://editor.p5js.org/re7l/sketches/e-LPIpri2V
 
-//Demo for changing url:http://127.0.0.1:5500/index.html?bgColor=250,250,200,5&leftColor=80,255,100,50&rightColor=200,200,100,50&scale=1
+//Bit similar to one of my other code:https://editor.p5js.org/Zichen_Feng/sketches/NYC7H3R9j
+
+//Demo for changing url:http://lunafeng922.github.io/ims-2025-Luna/ims-W3-luna/index.html?bgColor=255, 255, 100, 50&leftColor=80, 255, 100, 50&rightColor=255, 0, 100, 50&scale=1&city=London
+
+//Things I add: distance between fingers - volume; ypos of circles - pitch;xpos of circles - panning; scales choice - 1-7; circles&bg -color choice; octave shift - according to temperature
 
 let temperature = 0;
 let weather = "";
@@ -311,3 +315,4 @@ function get_url_params() {
   if (query.length < 1) return {};
   return Object.fromEntries(new URLSearchParams(query));
 }
+
