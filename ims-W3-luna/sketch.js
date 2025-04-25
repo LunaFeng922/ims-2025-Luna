@@ -2,6 +2,11 @@
 
 //Demo for changing url:http://127.0.0.1:5500/index.html?bgColor=250,250,200,5&leftColor=80,255,100,50&rightColor=200,200,100,50&scale=1
 
+let temperature = 0;
+let weather = "";
+let json;
+let city = "New York";
+
 let handPose;
 let video;
 
@@ -50,6 +55,95 @@ let handDetectedRight = false;
 
 function preload() {
   handPose = ml5.handPose();
+  let urlParams = get_url_params();
+  // url - circle colors
+  if (urlParams.leftColor) {
+    leftColor = urlParams.leftColor.split(",").map(Number);
+  }
+  if (urlParams.rightColor) {
+    rightColor = urlParams.rightColor.split(",").map(Number);
+  }
+
+  // url - bg
+  if (urlParams.bgColor) {
+    bgColor = urlParams.bgColor.split(",").map(Number);
+  }
+
+  // url - pentatonic choice
+  if (urlParams.scale && scalePresets[urlParams.scale]) {
+    scaleIndex = urlParams.scale;
+  }
+
+  let rootNote = 220;
+
+  if (urlParams.city) {
+    city = urlParams.city;
+  }
+
+  let url =
+    "https://api.openweathermap.org/data/2.5/weather?q=" +
+    city +
+    "&units=metric&APPID=e812164ca05ed9e0344b89ebe273c141";
+
+  loadJSON(
+    url,
+    (response) => {
+      json = response;
+
+      if (json && json.main && json.main.temp) {
+        temperature = json.main.temp;
+        weather = json.weather[0].description;
+
+        let octaveShift = 0;
+        if (temperature <= 10) {
+          octaveShift = -1;
+        } else if (temperature > 10 && temperature <= 20) {
+          octaveShift = 0;
+        } else if (temperature > 20 && temperature <= 30) {
+          octaveShift = 1;
+        } else {
+          octaveShift = 2;
+        }
+
+        //console.log("Temperature:", temperature, "Octave Shift:", octaveShift);
+
+        // apply octave shift multiplier
+        let shiftMultiplier = Math.pow(2, octaveShift);
+
+        pentatonic = getPentatonicFromRoot(
+          rootNote,
+          scalePresets[scaleIndex]
+        ).map((freq) => freq * shiftMultiplier);
+
+        //console.log("Scale:", scaleIndex, pentatonic);
+      } else {
+        //console.error("Can't access effective temperature");
+        temperature = "N/A";
+        weather = "Unknown";
+      }
+    },
+    (error) => {
+      //console.error("API Access Error:", error);
+      temperature = "N/A";
+      weather = "Unknown";
+    }
+  );
+
+  // URL - octave shift (if unapplicable)
+  let octaveShift = 0;
+  if (urlParams.octaveShift) {
+    octaveShift = parseInt(urlParams.octaveShift);
+    if (isNaN(octaveShift)) octaveShift = 0;
+  }
+
+  // apply octave shift multiplier
+  let shiftMultiplier = Math.pow(2, octaveShift);
+
+  pentatonic = getPentatonicFromRoot(rootNote, scalePresets[scaleIndex]).map(
+    (freq) => freq * shiftMultiplier
+  );
+
+  //console.log("Scale:", scaleIndex, pentatonic);
 }
 
 function setup() {
@@ -74,43 +168,8 @@ function setup() {
   positionUI();
   updateVideoDisplay();
 
-  let urlParams = get_url_params();
-
-  // url - circle colors
-  if (urlParams.leftColor) {
-    leftColor = urlParams.leftColor.split(",").map(Number);
-  }
-  if (urlParams.rightColor) {
-    rightColor = urlParams.rightColor.split(",").map(Number);
-  }
-
-  // url - bg
-  if (urlParams.bgColor) {
-    bgColor = urlParams.bgColor.split(",").map(Number);
-  }
-
-  // url - pentatonic choice
-  if (urlParams.scale && scalePresets[urlParams.scale]) {
-    scaleIndex = urlParams.scale;
-  }
-
-  let rootNote = 220;
-
-  // URL - octave shift
-  let octaveShift = 0;
-  if (urlParams.octaveShift) {
-    octaveShift = parseInt(urlParams.octaveShift);
-    if (isNaN(octaveShift)) octaveShift = 0;
-  }
-
-  // apply octave shift multiplier
-  let shiftMultiplier = Math.pow(2, octaveShift);
-
-  pentatonic = getPentatonicFromRoot(rootNote, scalePresets[scaleIndex]).map(
-    (freq) => freq * shiftMultiplier
-  );
-
-  console.log("Scale:", scaleIndex, pentatonic);
+  temperature = json.main.temp;
+  weather = json.weather[0].description;
 }
 
 function draw() {
@@ -140,6 +199,9 @@ function draw() {
   textAlign(LEFT, TOP);
   textFont("Doto");
   text("Scale:" + scaleNames[scaleIndex], 20, 20);
+  text("City: " + city, 20, 50);
+  text("Current temperature: " + temperature, 20, 80);
+  text("Forecast: " + weather, 20, 110);
   text(
     "*** Pinch your thumbs and index fingers together to draw and compose ***",
     20,
