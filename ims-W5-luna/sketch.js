@@ -2,7 +2,7 @@
 
 //Bit similar to one of my other code:https://editor.p5js.org/Zichen_Feng/sketches/NYC7H3R9j
 
-//Demo for changing url:http://lunafeng922.github.io/ims-2025-Luna/ims-W3-luna/index.html?bgColor=255, 255, 100, 50&leftColor=80, 255, 100, 50&rightColor=255, 0, 100, 50&scale=1&city=London
+//Demo for changing url:http://lunafeng922.github.io/ims-2025-Luna/ims-W5-luna/index.html?bgColor=255, 255, 100, 50&leftColor=80, 255, 100, 50&rightColor=255, 0, 100, 50&scale=1&city=London
 
 //Things I add: distance between fingers - volume; ypos of circles - pitch;xpos of circles - panning; scales choice - 1-7; circles&bg -color choice; octave shift - according to temperature; soundwave - according to weather;
 
@@ -11,7 +11,7 @@
 let temperature = 0;
 let weather = "";
 let json;
-let city = "Changchun";
+let city = "New York";
 
 let handPose;
 let video;
