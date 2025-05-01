@@ -19,7 +19,7 @@ function mousePressed() {
   if (mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h) {
     // 打开链接并尝试关闭当前页面
     window.open('http://lunafeng922.github.io/ims-2025-Luna/ims-W3-luna/index.html');
-    window.close();
+    window.close('http://lunafeng922.github.io/ims-2025-Luna/openwebpage/index.html');
   }
 }
 
