@@ -170,10 +170,9 @@ function setup() {
   video = createCapture(VIDEO);
   video.size(640, 480);
   video.hide();
+  Tone.start();
   handPose.detectStart(video, gotHands);
   updateVideoDisplay();
-  
-  Tone.start();
   cityCycleInterval = setInterval(cycleCity, 60000);
 }
 
