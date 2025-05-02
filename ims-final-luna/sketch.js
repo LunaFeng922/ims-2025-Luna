@@ -197,8 +197,6 @@ function setup() {
   updateVideoDisplay();
 
   cityCycleInterval = setInterval(cycleCity, 60000);
-
-  // 不在这里调用 Tone.start() 或 detectStart
 }
 
 let started = false;
