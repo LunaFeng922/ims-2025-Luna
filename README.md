@@ -8,4 +8,4 @@
 
  [ims-W5-luna](ims-W5-luna)
 
-[ims-final-how's-the-weather-luna](ims-final-how's-the-weather-luna)
+[ims-final-luna](ims-final-luna)
